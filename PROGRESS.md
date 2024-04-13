@@ -75,6 +75,7 @@ fbc12975-3dbb-46af-8f40-7410f664aed0
 (hbnb) 
 ```
 
+#### Alternative Syntax
 ```bash
 (hbnb) User.all()
 ["[User] (fbc12975-3dbb-46af-8f40-7410f664aed0) {'id': 'fbc12975-3dbb-46af-8f40-7410f664aed0', 'created_at': datetime.datetime(2024, 4, 13, 0, 39, 39, 138315), 'updated_at': datetime.datetime(2024, 4, 13, 0, 42, 18, 744639), 'first_name': 'Arafa'}"]
@@ -83,51 +84,18 @@ fbc12975-3dbb-46af-8f40-7410f664aed0
 (hbnb) update User 7f63c502-4cb8-46f4-81b6-4f9dd23b6c07 name "Bonolo"
 (hbnb) User.all()
 ["[User] (fbc12975-3dbb-46af-8f40-7410f664aed0) {'id': 'fbc12975-3dbb-46af-8f40-7410f664aed0', 'created_at': datetime.datetime(2024, 4, 13, 0, 39, 39, 138315), 'updated_at': datetime.datetime(2024, 4, 13, 0, 42, 18, 744639), 'first_name': 'Arafa'}", "[User] (7f63c502-4cb8-46f4-81b6-4f9dd23b6c07) {'id': '7f63c502-4cb8-46f4-81b6-4f9dd23b6c07', 'created_at': datetime.datetime(2024, 4, 13, 0, 45, 15, 449052), 'updated_at': datetime.datetime(2024, 4, 13, 0, 46, 0, 700284), 'name': 'Bonolo'}"]
+(hbnb) destroy User fbc12975-3dbb-46af-8f40-7410f664aed0
+(hbnb) User.all()
+["[User] (7f63c502-4cb8-46f4-81b6-4f9dd23b6c07) {'id': '7f63c502-4cb8-46f4-81b6-4f9dd23b6c07', 'created_at': datetime.datetime(2024, 4, 13, 0, 45, 15, 449052), 'updated_at': datetime.datetime(2024, 4, 13, 0, 46, 0, 700284), 'name': 'Bonolo'}"]
+(hbnb) update User 7f63c502-4cb8-46f4-81b6-4f9dd23b6c07 name "Software_Engineer"
+(hbnb) User.all()
+["[User] (7f63c502-4cb8-46f4-81b6-4f9dd23b6c07) {'id': '7f63c502-4cb8-46f4-81b6-4f9dd23b6c07', 'created_at': datetime.datetime(2024, 4, 13, 0, 45, 15, 449052), 'updated_at': datetime.datetime(2024, 4, 13, 0, 53, 50, 672164), 'name': 'Software_Engineer'}"]
+(hbnb) destroy User 7f63c502-4cb8-46f4-81b6-4f9dd23b6c07
+(hbnb) User.all()
+[]
 (hbnb) 
 ```
 
-```bash
-```
+***Code Works***
 
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
-
-```bash
-```
 
