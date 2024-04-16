@@ -99,3 +99,51 @@ fbc12975-3dbb-46af-8f40-7410f664aed0
 ***Code Works***
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 5. Delete object
+
+*Update FileStorage: (models/engine/file_storage.py)*
+
+### Update the prototype of `def all(self)` to `def all(self, cls=None)` - that returns the list of objects of one type of class.it’s an optional filtering
+
+
+```python
+def all(self, cls=None):
+        """
+        eturns the list of objects of one type of class.
+
+        Parameters:
+            cls (class, optional): The class type to filter objects.
+            Default: None.
+
+         Returns:
+            dict: A dictionary containing objects of the specified class type,
+            or all objects if no class type is provided.
+        """
+
+       return_dict = {}
+
+       # If cls is provided, filter objects accordingly
+        if class_name in self.all_classes:
+            return_dict.update(
+                    {key: val for key, val in self.__objects.items()
+                        if key.split('.')[0] == class_name})
+        else:
+            # If cls is None, return all objects
+            return_dict = self.__objects.copy()
+
+        return return_dict
+```
+
