@@ -8,38 +8,9 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    all_classes = {'BaseModel': BaseModel, 'User': User,
-                   'State': State, 'Place': Place, 'City': City,
-                   'Amenity': Amenity, 'Review': Review}
-
-    def all(self, cls=None):
-        """
-        eturns the list of objects of one type of class.
-
-        Parameters:
-            cls (class, optional): The class type to filter objects.
-                Default: None.
-
-         Returns:
-            dict: A dictionary containing objects of the specified class type,
-                or all objects if no class type is provided.
-        """
-
-       return_dict = {}
-
-       # If cls is provided, filter objects accordingly
-        if cls:
-            class_name = cls.__name__
-            if class_name in self.all_classes:
-                return_dict.update(
-                        {key: val for key, val in self.__objects.items()
-                            if key.split('.')[0] == class_name})
-        else:
-            # If cls is None, return all objects
-            return_dict = self.__objects.copy()
-
-        return return_dict
-        
+    def all(self):
+        """Returns a dictionary of models currently in storage"""
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -77,16 +48,3 @@ class FileStorage:
                         self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
-
-
-    def delete(self, obj=None):
-        """
-        Deletes an object from __objects if it exists.
-
-        Parameters:
-            obj (BaseModel, optional): The object to be deleted.
-                Defaults: None.
-        """
-        if obj is not None:
-            key = "{}.{}".format(obj.__class__.__name__, obj.id)
-            self.__objects.pop(key, None)
