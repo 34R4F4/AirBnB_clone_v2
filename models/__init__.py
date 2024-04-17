@@ -1,19 +1,15 @@
 #!/usr/bin/python3
-"""
-Instantiates the storage system and defines dummy classes for further use
-"""
-from models.engine.file_storage import FileStorage
+"""Module for instantiating a FileStorage object"""
+from os import environ
 from models.engine.db_storage import DBStorage
-
+from models.engine.file_storage import FileStorage
+from models.user import User
+from models.amenity import Amenity
 from models.base_model import BaseModel
 from models.city import City
-from models.review import Review
-from models.state import State
-from models.user import User
 from models.place import Place
-from models.amenity import Amenity
-
-from os import environ
+from models.state import State
+from models.review import Review
 
 dummy_classes = {"BaseModel": BaseModel, "User": User,
                  "Review": Review, "City": City,
@@ -22,7 +18,8 @@ dummy_classes = {"BaseModel": BaseModel, "User": User,
 
 dummy_tables = {"states": State, "cities": City,
                 "users": User, "places": Place,
-                "reviews": Review, "amenities": Amenity}
+                "reviews": Review, "amenities": Amenity
+                }
 
 storage_engine = environ.get("HBNB_TYPE_STORAGE")
 
