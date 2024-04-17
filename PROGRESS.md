@@ -116,6 +116,24 @@ fbc12975-3dbb-46af-8f40-7410f664aed0
 
 *Update FileStorage: (models/engine/file_storage.py)*
 
+
+### Add a new public instance method: `def delete(self, obj=None)`: to delete `obj` from `__objects` if it’s inside - if `obj` is equal to `None`, the method should not do anything
+
+```python
+    def delete(self, obj=None):
+        """
+        Deletes an object from __objects if it exists.
+
+        Parameters:
+            obj (BaseModel, optional): The object to be deleted.
+                Defaults: None.
+        """
+        if obj is not None:
+            key = "{}.{}".format(obj.__class__.__name__, obj.id)
+            self.__objects.pop(key, None)
+```
+
+
 ### Update the prototype of `def all(self)` to `def all(self, cls=None)` - that returns the list of objects of one type of class.it’s an optional filtering
 
 
@@ -135,11 +153,12 @@ def all(self, cls=None):
 
        return_dict = {}
 
-       # If cls is provided, filter objects accordingly
-        if class_name in self.all_classes:
-            return_dict.update(
-                    {key: val for key, val in self.__objects.items()
-                        if key.split('.')[0] == class_name})
+	# If cls is provided, filter objects accordingly
+	class_name = cls.__name__
+            if class_name in self.all_classes:
+                return_dict.update(
+                        {key: val for key, val in self.__objects.items()
+                            if key.split('.')[0] == class_name})
         else:
             # If cls is None, return all objects
             return_dict = self.__objects.copy()
