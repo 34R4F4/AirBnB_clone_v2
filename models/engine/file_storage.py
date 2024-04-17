@@ -8,6 +8,10 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
+    all_classes = {'BaseModel': BaseModel, 'User': User,
+                   'State': State, 'Place': Place, 'City': City,
+                   'Amenity': Amenity, 'Review': Review}
+
     def all(self, cls=None):
         """
         eturns the list of objects of one type of class.
