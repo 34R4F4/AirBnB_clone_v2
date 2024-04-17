@@ -1,99 +1,90 @@
 #!/usr/bin/python3
-"""Define storage engine using MySQL database
 """
-from models.base_model import BaseModel, Base
-from models.user import User
-from models.state import State
-from models.city import City
+Contains the FileStorage class responsible for serialization and deserialization.
+"""
+
+import json
 from models.amenity import Amenity
+from models.base_model import BaseModel
+from models.city import City
 from models.place import Place
 from models.review import Review
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm.session import sessionmaker, Session
-from os import getenv
+from models.state import State
+from models.user import User
 
-all_classes = {'State': State, 'City': City,
-               'User': User, 'Place': Place,
-               'Review': Review, 'Amenity': Amenity}
+# Dictionary mapping class names to their respective classes
+CLASSES_MAP = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+               "Place": Place, "Review": Review, "State": State, "User": User}
 
 
-class DBStorage:
-    """This class manages MySQL storage using SQLAlchemy
+class FileStorage:
+    """Serializes instances to a JSON file and deserializes them back to instances."""
 
-    Attributes:
-        __engine: engine object
-        __session: session object
-    """
-    __engine = None
-    __session = None
-
-    def __init__(self):
-        """Create SQLAlchemy engine
-        """
-        # create engine
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'.
-                                      format(getenv('HBNB_MYSQL_USER'),
-                                             getenv('HBNB_MYSQL_PWD'),
-                                             getenv('HBNB_MYSQL_HOST'),
-                                             getenv('HBNB_MYSQL_DB')),
-                                      pool_pre_ping=True)
-        # drop tables if test environment
-        if getenv('HBNB_ENV') == 'test':
-                Base.metadata.drop_all(self.__engine)
+    # File path to store JSON data
+    FILE_PATH = "file.json"
+    # Dictionary to store serialized objects
+    OBJECTS_DICT = {}
 
     def all(self, cls=None):
-        """Query and return all objects by class/generally
-        Return: dictionary (<class-name>.<object-id>: <obj>)
-        """
-        obj_dict = {}
-
-        if cls:
-            for row in self.__session.query(cls).all():
-                # populate dict with objects from storage
-                obj_dict.update({'{}.{}'.
-                                format(type(cls).__name__, row.id,): row})
+        """Return the dictionary of stored objects."""
+        if not cls:
+            return self.OBJECTS_DICT
+        elif isinstance(cls, str):
+            return {k: v for k, v in self.OBJECTS_DICT.items()
+                    if v.__class__.__name__ == cls}
         else:
-            for key, val in all_classes.items():
-                for row in self.__session.query(val):
-                    obj_dict.update({'{}.{}'.
-                                    format(type(row).__name__, row.id,): row})
-        return obj_dict
+            return {k: v for k, v in self.OBJECTS_DICT.items()
+                    if v.__class__ == cls}
 
     def new(self, obj):
-        """Add object to current database session
-        """
-        self.__session.add(obj)
+        """Add a new object to the storage."""
+        if obj is not None:
+            key = obj.__class__.__name__ + "." + obj.id
+            self.OBJECTS_DICT[key] = obj
 
     def save(self):
-        """Commit current database session
-        """
-        self.__session.commit()
-
-    def delete(self, obj=None):
-        """Delete obj from database session
-        """
-        if obj:
-            # determine class from obj
-            cls_name = all_classes[type(obj).__name__]
-
-            # query class table and delete
-            self.__session.query(cls_name).\
-                filter(cls_name.id == obj.id).delete()
+        """Serialize stored objects to the JSON file."""
+        json_objects = {}
+        for key in self.OBJECTS_DICT:
+            json_objects[key] = self.OBJECTS_DICT[key].to_dict(save_to_disk=True)
+        with open(self.FILE_PATH, 'w') as file:
+            json.dump(json_objects, file)
 
     def reload(self):
-        """Create database session
-        """
-        # create session from current engine
-        Base.metadata.create_all(self.__engine)
-        # create db tables
-        session = sessionmaker(bind=self.__engine,
-                               expire_on_commit=False)
-        # previousy:
-        # Session = scoped_session(session)
-        self.__session = scoped_session(session)
+        """Deserialize the JSON file and load objects into storage."""
+        try:
+            with open(self.FILE_PATH, 'r') as file:
+                json_objects = json.load(file)
+            for key in json_objects:
+                self.OBJECTS_DICT[key] = CLASSES_MAP[json_objects[key]["__class__"]](**json_objects[key])
+        except:
+            pass
+
+    def delete(self, obj=None):
+        """Delete an object from storage if present."""
+        if obj is not None:
+            del self.OBJECTS_DICT[obj.__class__.__name__ + '.' + obj.id]
+            self.save()
 
     def close(self):
-        """Close scoped session
-        """
-        self.__session.remove()
+        """Deserialize JSON file to objects."""
+        self.reload()
+
+    def get(self, cls, id):
+        """Retrieve an object by class name and ID."""
+        if cls is not None and isinstance(cls, str) and id is not None and \
+                isinstance(id, str) and cls in CLASSES_MAP:
+            key = cls + '.' + id
+            obj = self.OBJECTS_DICT.get(key, None)
+            return obj
+        else:
+            return None
+
+    def count(self, cls=None):
+        """Count the number of objects in storage."""
+        total = 0
+        if isinstance(cls, str) and cls in CLASSES_MAP:
+            total = len(self.all(cls))
+        elif cls is None:
+            total = len(self.OBJECTS_DICT)
+        return total
