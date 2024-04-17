@@ -1,33 +1,29 @@
 #!/usr/bin/python3
-"""Module for defining the Review class in the HBNB project"""
-
-from os import getenv
-import models
+"""
+Contains the Review class to represent reviews
+"""
 from models.base_model import BaseModel, Base
-import sqlalchemy
-from sqlalchemy import Column, String
+from models.place import Place
+from models.user import User
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.sql.schema import ForeignKey
+from os import environ
+
+storage_engine = environ.get("HBNB_TYPE_STORAGE")
 
 
 class Review(BaseModel, Base):
-    """Represents a review object."""
-
-    if getenv('HBNB_TYPE_STORAGE') == 'db':
-        __tablename__ = 'reviews'
-        review_text = Column(String(60),
-                             nullable=False)
-        place_id = Column(String(60),
-                          ForeignKey('places.id'),
-                          nullable=False)
-        user_id = Column(String(60),
-                         ForeignKey('users.id'),
-                         nullable=False)
+    """
+    Review class
+    """
+    if storage_engine == 'db':
+        __tablename__ = "reviews"
+        place_id = Column(String(60), ForeignKey("places.id"))
+        user_id = Column(String(60), ForeignKey("users.id"))
+        text = Column(String(1024), nullable=False)
+        place = relationship("Place", back_populates="reviews")
     else:
         place_id = ""
         user_id = ""
-        review_text = ""
-
-    def __init__(self, *args, **kwargs):
-        """Initialize a review instance."""
-        super().__init__(*args, **kwargs)
+        text = ""
