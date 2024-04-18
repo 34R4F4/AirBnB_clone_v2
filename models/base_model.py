@@ -1,79 +1,57 @@
 #!/usr/bin/python3
-""" Module containing BaseModel """
+"""Define the base model module.
 
-from uuid import uuid4
+This module provides a base class for all models in the HBNB clone.
+"""
+import uuid
 from datetime import datetime
 import models
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from os import environ
+from sqlalchemy import Column, String, DateTime
 
-storage_engine = environ.get("HBNB_TYPE_STORAGE")
-
-if storage_engine == "db":
-    Base = declarative_base()
-else:
-    Base = object
+Base = declarative_base()
 
 
-class BaseModel():
-    """
-    Base class to define all common attributes and methods for other classes
-    """
+class BaseModel:
+    """A base class for all HBNB models."""
 
-    id = Column(String(60), primary_key=True, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    id = Column(String(60), primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     def __init__(self, *args, **kwargs):
-        """
-        Initialization of BaseModel
-        """
+        """Instantiate a new model."""
+        self.id = str(uuid.uuid4())
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
         if kwargs:
-            for key in kwargs:
-                if key == "__class__":
-                    continue
-                elif key in ("created_at", "updated_at"):
-                    iso = "%Y-%m-%dT%H:%M:%S.%f"
-                    setattr(self, key, datetime.strptime(kwargs[key], iso))
-                else:
-                    setattr(self, key, kwargs[key])
-                self.id = str(uuid4())
-        else:
-            self.id = str(uuid4())
-            self.created_at = self.updated_at = datetime.now()
+            for key, value in kwargs.items():
+                if key == 'created_at' or key == 'updated_at':
+                    setattr(self, key, datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f'))
+                elif key != '__class__':
+                    setattr(self, key, value)
 
     def __str__(self):
-        """
-        Return string representation of a Model
-        """
-        return "[{}] ({}) {}".format(self.__class__.__name__,
-                                     self.id, self.__dict__)
+        """Return a string representation of the instance."""
+        cls_name = type(self).__name__
+        filtered_dict = {key: value for key, value in self.__dict__.items() if key != '_sa_instance_state'}
+        return '[{}] ({}) {}'.format(cls_name, self.id, filtered_dict)
 
     def save(self):
-        """
-        Update latest updation time of a model
-        """
+        """Update updated_at with current time when instance is changed."""
         self.updated_at = datetime.now()
         models.storage.new(self)
         models.storage.save()
 
     def to_dict(self):
-        """
-        Custom representation of a model
-        """
-        custom = self.__dict__.copy()
-        custom_dict = {"__class__": self.__class__.__name__}
-        for key in list(custom):
-            if key in ("created_at", "updated_at"):
-                custom_dict[key] = getattr(self, key).isoformat()
-            elif key == "_sa_instance_state":
-                custom.pop(key)
-            else:
-                custom_dict[key] = getattr(self, key)
-        return custom_dict
+        """Convert instance into dict format."""
+        dictionary = self.__dict__.copy()
+        dictionary.pop('_sa_instance_state', None)
+        dictionary['__class__'] = self.__class__.__name__
+        dictionary['created_at'] = self.created_at.isoformat()
+        dictionary['updated_at'] = self.updated_at.isoformat()
+        return dictionary
 
     def delete(self):
-        """ Delete the current instance from the storage """
-        k = "{}.{}".format(type(self).__name__, self.id)
-        del models.storage.__objects[k]
+        """Delete the current instance from the storage."""
+        models.storage.delete(self)

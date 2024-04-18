@@ -1,31 +1,17 @@
 #!/usr/bin/python3
-"""Module for instantiating a FileStorage object"""
-from os import environ
-from models.engine.db_storage import DBStorage
-from models.engine.file_storage import FileStorage
-from models.user import User
-from models.amenity import Amenity
-from models.base_model import BaseModel
-from models.city import City
-from models.place import Place
-from models.state import State
-from models.review import Review
+"""Instantiate a storage object based on environment variable."""
 
-dummy_classes = {"BaseModel": BaseModel, "User": User,
-                 "Review": Review, "City": City,
-                 "State": State, "Place": Place,
-                 "Amenity": Amenity}
+import os
 
-dummy_tables = {"states": State, "cities": City,
-                "users": User, "places": Place,
-                "reviews": Review, "amenities": Amenity
-                }
+storage_type = os.environ.get("HBNB_TYPE_STORAGE")
 
-storage_engine = environ.get("HBNB_TYPE_STORAGE")
-
-if storage_engine == "db":
+# Select storage type based on environment variable
+if storage_type == "db":
+    from models.engine.db_storage import DBStorage
     storage = DBStorage()
-    storage.reload()
 else:
+    from models.engine.file_storage import FileStorage
     storage = FileStorage()
-    storage.reload()
+
+# Reload storage data
+storage.reload()

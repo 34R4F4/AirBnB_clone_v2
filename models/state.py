@@ -1,37 +1,32 @@
 #!/usr/bin/python3
-"""Module for defining the State class in the HBNB project"""
-
-import models
+"""Define the State model for the HBNB project."""
 from models.base_model import BaseModel, Base
-import sqlalchemy
+from models.city import City
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-from os import getenv
+import models
 
 
 class State(BaseModel, Base):
-    """Represents a state object."""
+    """State class."""
 
-    if getenv('HBNB_TYPE_STORAGE') == 'db':
-        __tablename__ = 'states'
-        state_name = Column(String(128),
-                            nullable=False)
-        cities = relationship("City", cascade="all, delete",
-                              backref="states")
+    __tablename__ = "states"
+    name = Column(String(128), nullable=False)
+    
+    # Define relationship based on storage type
+    if models.storage_type == "db":
+        cities = relationship("City", backref="state", cascade="all, delete")
     else:
-        state_name = ""
-
-    def __init__(self, *args, **kwargs):
-        """Initialize a state instance."""
-        super().__init__(*args, **kwargs)
-
-    if getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
         def cities(self):
-            """FileStorage getter attribute that returns City instances."""
-            values_city = models.storage.all("City").values()
-            list_city = []
-            for city in values_city:
-                if city.state_id == self.id:
-                    list_city.append(city)
-            return list_city
+            """Getter attribute for cities."""
+            cities = models.storage.all(City)
+            return [city for city in cities.values()
+                    if city.state_id == self.id]
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a new State."""
+        filtered_kwargs = {k: v for k, v in kwargs.items()
+                           if hasattr(self, k) or k == "id"}
+        super().__init__(*args, **filtered_kwargs)
+        self.name = kwargs.get("name", "")

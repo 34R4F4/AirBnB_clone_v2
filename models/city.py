@@ -1,32 +1,22 @@
 #!/usr/bin/python3
-"""Module for defining the City class in the HBNB project"""
-
-from os import getenv
-import models
+"""Define the City model for the HBNB project."""
 from models.base_model import BaseModel, Base
-import sqlalchemy
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey
 
 
 class City(BaseModel, Base):
-    """Represents a city object, containing state ID and name."""
+    """The City class, containing state ID and name."""
 
-    if getenv('HBNB_TYPE_STORAGE') == 'db':
-        __tablename__ = 'cities'
-        name = Column(String(128),
-                      nullable=False)
-        state_id = Column(String(60),
-                          ForeignKey('states.id'),
-                          nullable=False)
-        places = relationship("Place",
-                              backref="cities",
-                              cascade="all, delete-orphan")
-    else:
-        name = ""
-        state_id = ""
+    __tablename__ = "cities"
+    name = Column(String(128), nullable=False)
+    state_id = Column(String(60), ForeignKey("states.id"), nullable=False)
+    places = relationship("Place", backref="cities", cascade="delete")
 
     def __init__(self, *args, **kwargs):
-        """Initialize a city instance."""
-        super().__init__(*args, **kwargs)
+        """Initialize a new City."""
+        filtered_kwargs = {k: v for k, v in kwargs.items()
+                           if hasattr(self, k) or k == "id"}
+        super().__init__(*args, **filtered_kwargs)
+        self.name = kwargs.get("name", "")
+        self.state_id = kwargs.get("state_id", "")

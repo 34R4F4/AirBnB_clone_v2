@@ -1,29 +1,22 @@
 #!/usr/bin/python3
-"""
-Contains the Review class to represent reviews
-"""
-from models.base_model import BaseModel, Base
-from models.place import Place
-from models.user import User
-from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.sql.schema import ForeignKey
-from os import environ
-
-storage_engine = environ.get("HBNB_TYPE_STORAGE")
+"""Define the Review model for the HBNB project."""
+from sqlalchemy import Column, ForeignKey, String
+from models.base_model import Base, BaseModel
 
 
 class Review(BaseModel, Base):
-    """
-    Review class
-    """
-    if storage_engine == 'db':
-        __tablename__ = "reviews"
-        place_id = Column(String(60), ForeignKey("places.id"))
-        user_id = Column(String(60), ForeignKey("users.id"))
-        text = Column(String(1024), nullable=False)
-        place = relationship("Place", back_populates="reviews")
-    else:
-        place_id = ""
-        user_id = ""
-        text = ""
+    """Review class to store review information."""
+
+    __tablename__ = "reviews"
+    place_id = Column(String(60), ForeignKey("places.id"), nullable=False)
+    user_id = Column(String(60), ForeignKey("users.id"), nullable=False)
+    text = Column(String(1024), nullable=False)
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a new Review."""
+        filtered_kwargs = {k: v for k, v in kwargs.items()
+                           if hasattr(self, k) or k == "id"}
+        super().__init__(*args, **filtered_kwargs)
+        self.text = kwargs.get("text", "")
+        self.user_id = kwargs.get("user_id", "")
+        self.place_id = kwargs.get("place_id", "")
