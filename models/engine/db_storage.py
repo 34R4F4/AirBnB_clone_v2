@@ -2,10 +2,17 @@
 """Database storage module for MySQL"""
 import models
 from models.base_model import BaseModel, Base
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 from os import environ, getenv
-from models import city, state
+#from models import city, state
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import sessionmaker, Session
 from sqlalchemy import create_engine
 
 HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
