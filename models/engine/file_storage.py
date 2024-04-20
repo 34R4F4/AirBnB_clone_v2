@@ -21,12 +21,13 @@ class FileStorage:
         """Return a list of objects of one type of class (optional filtering).
 
          Args:
-            cls (optional): The class type to filter objects by. If provided, only objects
-                of the specified class type will be included in the returned list.
+            cls (optional): The class type to filter objects by. If provided,
+                only objects of the specified class type will be included
+                in the returned list.
 
         Returns:
-            list: A list of objects filtered by the specified class type, or all objects
-                if no class type is specified.
+            list: A list of objects filtered by the specified class type,
+                or all objects if no class type is specified.
 
         """
         # If cls is not provided, return all objects in the storage
