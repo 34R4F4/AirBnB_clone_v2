@@ -14,6 +14,7 @@ place_amenity = Table(
     Column("amenity_id", String(60), ForeignKey("amenities.id"))
 )
 
+
 class Place(BaseModel, Base):
     """A place to stay."""
 

@@ -18,12 +18,22 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Return a dictionary of models currently in storage."""
-        objects = FileStorage.__objects
+        """Return a list of objects of one type of class (optional filtering).
+
+         Args:
+            cls (optional): The class type to filter objects by. If provided, only objects
+                of the specified class type will be included in the returned list.
+
+        Returns:
+            list: A list of objects filtered by the specified class type, or all objects
+                if no class type is specified.
+
+        """
+        # If cls is not provided, return all objects in the storage
         if cls is None:
-            return objects
-        return {key: value for (key, value) in objects.items()
-                if key.startswith(cls.__name__ + '.')}
+            return list(self.__objects.values())
+        # Filter objects by the specified class type
+        return [obj for obj in self.__objects.values() if isinstance(obj, cls)]
 
     def new(self, obj):
         """Add a new object to the storage dictionary."""

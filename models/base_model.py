@@ -27,14 +27,17 @@ class BaseModel:
         if kwargs:
             for key, value in kwargs.items():
                 if key == 'created_at' or key == 'updated_at':
-                    setattr(self, key, datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f'))
+                    setattr(self, key, datetime.strptime(
+                        value, '%Y-%m-%dT%H:%M:%S.%f'))
                 elif key != '__class__':
                     setattr(self, key, value)
 
     def __str__(self):
         """Return a string representation of the instance."""
         cls_name = type(self).__name__
-        filtered_dict = {key: value for key, value in self.__dict__.items() if key != '_sa_instance_state'}
+        filtered_dict = {
+                key: value for key, value in self.__dict__.items()
+                if key != '_sa_instance_state'}
         return '[{}] ({}) {}'.format(cls_name, self.id, filtered_dict)
 
     def save(self):
