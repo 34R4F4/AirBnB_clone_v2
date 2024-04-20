@@ -30,11 +30,10 @@ class FileStorage:
                 or all objects if no class type is specified.
 
         """
-        # If cls is not provided, return all objects in the storage
         if cls is None:
-            return list(self.__objects.values())
+            return self.__objects.copy()
         # Filter objects by the specified class type
-        return [obj for obj in self.__objects.values() if isinstance(obj, cls)]
+        return {key: obj for key, obj in self.__objects.items() if isinstance(obj, cls)}
 
     def new(self, obj):
         """Add a new object to the storage dictionary."""
@@ -59,7 +58,9 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as file:
                 temp = json.load(file)
                 for key, value in temp.items():
-                    self.all()[key] = classes[value['__class__']](**value)
+                    class_name = value['__class__']
+                    if class_name in classes:
+                        self.new(classes[class_name](**value))
         except FileNotFoundError:
             pass
 
